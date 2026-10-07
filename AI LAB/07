@@ -1,0 +1,143 @@
+def print_board(board):
+    print()
+    for i in range(0, 9, 3):
+        print(" | ".join(board[i:i+3]))
+        if i < 6:
+            print("--+---+--")
+    print()
+
+
+def check_winner(board):
+    winning_positions = [
+        (0, 1, 2),
+        (3, 4, 5),
+        (6, 7, 8),
+        (0, 3, 6),
+        (1, 4, 7),
+        (2, 5, 8),
+        (0, 4, 8),
+        (2, 4, 6)
+    ]
+
+    for a, b, c in winning_positions:
+        if board[a] == board[b] == board[c] and board[a] != " ":
+            return board[a]
+
+    if " " not in board:
+        return "Draw"
+
+    return None
+
+
+# Heuristic function
+def heuristic(board):
+    score = 0
+
+    winning_positions = [
+        (0, 1, 2),
+        (3, 4, 5),
+        (6, 7, 8),
+        (0, 3, 6),
+        (1, 4, 7),
+        (2, 5, 8),
+        (0, 4, 8),
+        (2, 4, 6)
+    ]
+
+    for a, b, c in winning_positions:
+        line = [board[a], board[b], board[c]]
+
+        # Computer has won
+        if line.count("O") == 3:
+            score += 100
+
+        # Opponent has won
+        elif line.count("X") == 3:
+            score -= 100
+
+        # Two O's and one empty
+        elif line.count("O") == 2 and line.count(" ") == 1:
+            score += 10
+
+        # Two X's and one empty
+        elif line.count("X") == 2 and line.count(" ") == 1:
+            score -= 10
+
+        # One O and two empty
+        elif line.count("O") == 1 and line.count(" ") == 2:
+            score += 1
+
+        # One X and two empty
+        elif line.count("X") == 1 and line.count(" ") == 2:
+            score -= 1
+
+    return score
+
+
+def computer_move(board):
+    best_score = -float("inf")
+    best_move = None
+
+    for i in range(9):
+        if board[i] == " ":
+            board[i] = "O"
+
+            score = heuristic(board)
+
+            board[i] = " "
+
+            if score > best_score:
+                best_score = score
+                best_move = i
+
+    return best_move
+
+
+# Main program
+board = [" "] * 9
+
+print("TIC-TAC-TOE")
+print("You are X")
+print("Computer is O")
+
+while True:
+    print_board(board)
+
+    # Player move
+    move = int(input("Enter position (1-9): ")) - 1
+
+    if move < 0 or move > 8 or board[move] != " ":
+        print("Invalid move! Try again.")
+        continue
+
+    board[move] = "X"
+
+    winner = check_winner(board)
+
+    if winner:
+        print_board(board)
+
+        if winner == "X":
+            print("You win!")
+        else:
+            print("Draw!")
+
+        break
+
+    # Computer move
+    move = computer_move(board)
+
+    if move is not None:
+        board[move] = "O"
+
+    winner = check_winner(board)
+
+    if winner:
+        print_board(board)
+
+        if winner == "O":
+            print("Computer wins!")
+        else:
+            print("Draw!")
+
+        break
